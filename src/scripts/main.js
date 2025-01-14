@@ -16,6 +16,11 @@ const tableData = {
   maxCount: 10,
 };
 
+function updateTableData() {
+  tableData.rows = table.rows;
+  tableData.columns = table.rows[0].cells;
+}
+
 function disabledCheck() {
   const { minCount, maxCount, rows, columns } = tableData;
 
@@ -47,36 +52,36 @@ function disabledCheck() {
 function appendRow() {
   tableBody.insertAdjacentHTML(
     'beforeend',
-    `
-    <tr>
-      ${(() => {
-        let rowContent = '';
-
-        for (let i = 0; i < tableData.columns.length; i++) {
-          rowContent += `<td></td>`;
-        }
-
-        return rowContent;
-      })()}
-    </tr>
-  `,
+    `<tr>${'<td></td>'.repeat(tableData.columns.length)}</tr>`
   );
+  updateTableData();
+  disabledCheck();
 }
 
 function deleteRow() {
-  tableBody.removeChild(tableBody.lastElementChild);
+  if (tableData.rows.length > tableData.minCount) {
+    tableBody.deleteRow(-1);
+    updateTableData();
+    disabledCheck();
+  }
 }
 
 function appendColumn() {
-  tableBody.querySelectorAll('tr').forEach((row) => {
+  for (const row of tableData.rows) {
     row.insertAdjacentHTML('beforeend', '<td></td>');
-  });
+  }
+  updateTableData();
+  disabledCheck();
 }
 
 function deleteColumn() {
-  tableBody.querySelectorAll('tr').forEach((row) => {
-    row.removeChild(row.lastElementChild);
-  });
+  if (tableData.columns.length > tableData.minCount) {
+    for (const row of tableData.rows) {
+      row.deleteCell(-1);
+    }
+    updateTableData();
+    disabledCheck();
+  }
 }
 
 function main() {
